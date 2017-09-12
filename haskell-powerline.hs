@@ -157,7 +157,7 @@ git_segment (ExitSuccess, stdout, stderr) = result
          code "MM" = Conflicted
          code (' ':_) = NotStaged
          code (_:" ") = Staged
-         code x = error $ "did not understand code " ++ x
+         code _ = Conflicted
 
 git_segment (ExitFailure _, _, _) = empty_segment
 
