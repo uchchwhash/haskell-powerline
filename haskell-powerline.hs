@@ -154,6 +154,7 @@ git_segment (ExitSuccess, stdout, stderr) = result
          code "DU" = Conflicted
          code "AA" = Conflicted
          code "UU" = Conflicted
+         code "MM" = Conflicted
          code (' ':_) = NotStaged
          code (_:" ") = Staged
          code x = error $ "did not understand code " ++ x
