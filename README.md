@@ -19,4 +19,4 @@ you are probably good to go, so add
 ```bash
 source <path-to-repo>/setup.sh
 ```
-to your `.bashrc`. If the symbols do not show up, you probably need a [powerline font](https://github.com/powerline/fonts).
+to your `.bashrc` file. If the symbols do not show up, you probably need a [powerline font](https://github.com/powerline/fonts).
