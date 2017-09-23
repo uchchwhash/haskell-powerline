@@ -147,14 +147,6 @@ git_segment (ExitSuccess, stdout, stderr) = result
                           local <- try (manyTill anyChar (try (string "..."))) <|> manyTill anyChar eof
                           return local
          code "??" = Untracked
-         code "DD" = Conflicted
-         code "AU" = Conflicted
-         code "UD" = Conflicted
-         code "UA" = Conflicted
-         code "DU" = Conflicted
-         code "AA" = Conflicted
-         code "UU" = Conflicted
-         code "MM" = Conflicted
          code (' ':_) = NotStaged
          code (_:" ") = Staged
          code _ = Conflicted
