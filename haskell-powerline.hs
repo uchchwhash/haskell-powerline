@@ -127,8 +127,15 @@ instance Show GitStatus where
     show Staged = staged
 
 
-git_segment (ExitSuccess, stdout, stderr) = result
-   where result = segment (branch ++ " " ++ info) color
+git_segment seg1 seg2 = go seg1 seg2
+   where go (ExitFailure _, _, _) (ExitFailure _, _, _) = empty_segment
+         go (ExitSuccess, _, _) _ = result
+         go _ (ExitSuccess, _, _) = result2
+         stdout = case seg1 of
+                      (ExitSuccess, out, _) -> out
+                      (ExitFailure _, _, _) -> let (_, out, _) = seg2 in out
+         result = segment (branch ++ " " ++ info) color
+         result2 = segment info color
          dirty = length status_groups > 0
          color = if dirty then repo_dirty else repo_clean
          info = concat (intersperse " " (status_groups ++ [branch_name]))
@@ -151,8 +158,6 @@ git_segment (ExitSuccess, stdout, stderr) = result
          code (_:" ") = Staged
          code _ = Conflicted
 
-git_segment (ExitFailure _, _, _) = empty_segment
-
 
 render_all xs = render one_piece ++ reset ++ fgcolor last_bg ++ separator
                 where one_piece = foldl append empty_segment xs
@@ -163,17 +168,23 @@ processArgs = do [arg] <- getArgs
                  let status = read arg :: Int
                  return status
 
-git_status = result
+git_status1 = result
     where process = proc "git" ["status", "--porcelain", "-b"]
+          result = process{std_out = CreatePipe, std_err = CreatePipe}
+
+git_status2 = result
+    where process = proc "git" ["status", "--porcelain"]
           result = process{std_out = CreatePipe, std_err = CreatePipe}
 
 main = do status <- processArgs
           cwd <- getCurrentDirectory
           home <- lookupEnv "HOME"
-          git_result <- readCreateProcessWithExitCode git_status ""
+          git_result1 <- readCreateProcessWithExitCode git_status1 ""
+          git_result2 <- readCreateProcessWithExitCode git_status2 ""
           ssh_client <- lookupEnv "SSH_CLIENT"
           putStr $ render_all ([username_segment,
                                 ssh_segment ssh_client,
                                 hostname_segment] ++ cwd_segments cwd home ++
-                               [git_segment git_result, status_segment status])
+                               [git_segment git_result1 git_result2,
+                                status_segment status])
           putStr $ reset ++ " "
