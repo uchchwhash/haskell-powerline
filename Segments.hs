@@ -14,6 +14,7 @@ import Text.Parsec.String (Parser)
 import Text.Parsec.Char (char)
 
 data Segment = Segment{content :: String, left :: Colors.Color, right :: Colors.Color}
+               deriving (Eq)
 
 template x = "\\[\\e" ++ x ++ "\\]"
 
@@ -27,13 +28,24 @@ instance Show Segment where
     show (Segment{content = content, left = left, right = right})
         = concat [fgcolor (fg left), bgcolor (bg left), content, fgcolor (fg right), bgcolor (bg right)]
 
+empty = Segment{content = "", left = Colors.empty, right = Colors.empty}
+
 instance Monoid Segment where
-    mempty = Segment{content = "", left = Colors.empty, right = Colors.empty}
-    mappend x y = Segment{content = whole, left = left x, right = right y}
-        where whole = concat [content x,
-                              fgcolor (fg (right x)), bgcolor (bg (right x)),
-                              fgcolor (fg (left x)), bgcolor (bg (left x)),
-                              content y]
+    mempty = empty
+    mappend x y | x == empty = y
+                | y == empty = x
+                | otherwise = Segment{content = whole, left = left x, right = right y}
+                  where whole = concat [content x,
+                                        fgcolor (fg stop), bgcolor (bg stop),
+                                        separator,
+                                        fgcolor (fg start), bgcolor (bg start),
+                                        content y]
+                        stop = right x
+                        start = left y
+                        separator = if bg stop == bg start
+                                        then fgcolor (fg Colors.outline) ++ Symbols.outline
+                                        else concat [fgcolor (bg stop), bgcolor (bg start),
+                                                     Symbols.separator]
 
 segment content color = Segment { content = " " ++ content ++ " ", left = color, right = color}
 
@@ -45,7 +57,7 @@ status code = if code == 0
                   else segment sym Colors.cmd_failed
               where sym = "\\$"
 
-ssh Nothing = mempty
+ssh Nothing = empty
 ssh (Just _) = segment Symbols.lock Colors.ssh
 
 cwd current_folder home = foldl (<>) mempty (segments home)
@@ -54,7 +66,7 @@ cwd current_folder home = foldl (<>) mempty (segments home)
               where
               rest = if in_home then drop (length home_folder) current_folder else current_folder
               in_home = isPrefixOf home_folder current_folder
-              home_seg = if in_home then segment "~" Colors.home else mempty
+              home_seg = if in_home then segment "~" Colors.home else empty
           words s = case dropWhile (== '/') s of
                          "" -> []
                          s' -> w : words s'' where (w, s'') = break (== '/') s'
@@ -76,7 +88,7 @@ instance Show GitStatus where
     show Staged = Symbols.staged
 
 
-git (ExitFailure _, _, _) = mempty
+git (ExitFailure _, _, _) = empty
 git (ExitSuccess, out, _) = segment (Symbols.branch ++ " " ++ info) color
    where
          color = if dirty then Colors.repo_dirty else Colors.repo_clean

@@ -1,6 +1,6 @@
 module Colors where
 
-data Color = Color{fg :: Int, bg :: Int}
+data Color = Color{fg :: Int, bg :: Int} deriving (Eq)
 
 empty = Color{fg = 0, bg = 15}
 
