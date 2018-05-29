@@ -8,20 +8,6 @@ import System.Process (readCreateProcessWithExitCode, StdStream(..), std_out, st
 
 import qualified Segments
 
--- append x y | content x == "" = y
---            | content y == "" = x
---            | otherwise = Segment{content = joined, color = color y}
---                          where joined = render x ++ middle ++ render y
---                                cx = color x
---                                cy = color y
---                                middle = if bg cx == bg cy
---                                             then fgcolor (fg outline) ++ outline
---                                             else concat [fgcolor (bg cx),
---                                                          bgcolor (bg cy),
---                                                          separator]
---
-
--- external interaction
 processArgs = do [arg] <- getArgs
                  let status = read arg :: Int
                  return status
