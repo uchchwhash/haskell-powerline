@@ -12,7 +12,7 @@ $ make build
 ```
 and test it by running
 ```bash
-$ ./haskell-powerline 0
+$ ./powerline 0
 ```
 If nothing terrible happens and the result looks like ANSI PS1 gibberish with powerline symbols thrown in,
 you are probably good to go, so add
