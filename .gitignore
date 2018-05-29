@@ -1,4 +1,5 @@
 haskell-powerline
+powerline
 dist
 dist-*
 cabal-dev
