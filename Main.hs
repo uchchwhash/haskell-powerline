@@ -21,6 +21,7 @@ main = do status <- processArgs
           home <- lookupEnv "HOME"
           git_result <- readCreateProcessWithExitCode git_status ""
           ssh_client <- lookupEnv "SSH_CLIENT"
+
           putStr $ Segments.render [Segments.username, Segments.ssh ssh_client,
                                     Segments.hostname, Segments.cwd cwd home,
                                     Segments.git git_result, Segments.status status]

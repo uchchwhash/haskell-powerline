@@ -30,22 +30,21 @@ instance Show Segment where
 
 empty = Segment{content = "", left = Colors.empty, right = Colors.empty}
 
-instance Monoid Segment where
-    mempty = empty
-    mappend x y | x == empty = y
-                | y == empty = x
-                | otherwise = Segment{content = whole, left = left x, right = right y}
-                  where whole = concat [content x,
-                                        fgcolor (fg stop), bgcolor (bg stop),
-                                        separator,
-                                        fgcolor (fg start), bgcolor (bg start),
-                                        content y]
-                        stop = right x
-                        start = left y
-                        separator = if bg stop == bg start
-                                        then fgcolor (fg Colors.outline) ++ Symbols.outline
-                                        else concat [fgcolor (bg stop), bgcolor (bg start),
-                                                     Symbols.separator]
+instance Semigroup Segment where
+    x <> y | x == empty = y
+           | y == empty = x
+           | otherwise = Segment{content = whole, left = left x, right = right y}
+             where whole = concat [content x,
+                                   fgcolor (fg stop), bgcolor (bg stop),
+                                   separator,
+                                   fgcolor (fg start), bgcolor (bg start),
+                                   content y]
+                   stop = right x
+                   start = left y
+                   separator = if bg stop == bg start
+                                   then fgcolor (fg Colors.outline) ++ Symbols.outline
+                                   else concat [fgcolor (bg stop), bgcolor (bg start),
+                                                Symbols.separator]
 
 segment content color = Segment { content = " " ++ content ++ " ", left = color, right = color}
 
@@ -60,7 +59,7 @@ status code = if code == 0
 ssh Nothing = empty
 ssh (Just _) = segment Symbols.lock Colors.ssh
 
-cwd current_folder home = foldl (<>) mempty (segments home)
+cwd current_folder home = foldl (<>) empty (segments home)
     where segments Nothing = rest_segs (words current_folder)
           segments (Just home_folder) = home_seg : (rest_segs (words rest))
               where
@@ -115,5 +114,5 @@ git (ExitSuccess, out, _) = segment (Symbols.branch ++ " " ++ info) color
 
 render :: [Segment] -> String
 render segments = show whole ++ reset ++ finish ++ Symbols.separator ++ reset ++ " "
-    where whole = foldl (<>) mempty segments
+    where whole = foldl (<>) empty segments
           finish = fgcolor (bg (right whole))
