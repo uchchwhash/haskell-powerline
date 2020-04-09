@@ -30,4 +30,4 @@ git_conflicted = Color{fg = 15, bg = 9}
 
 git_untracked = Color{fg = 15, bg = 52}
 
-virtual_env = Color{fg = 0, bg = 35}
+conda_env = Color{fg = 35, bg = 0}

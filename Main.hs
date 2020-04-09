@@ -19,9 +19,10 @@ git_status = result
 main = do status <- processArgs
           cwd <- getCurrentDirectory
           home <- lookupEnv "HOME"
+          conda <- lookupEnv "CONDA_DEFAULT_ENV"
           git_result <- readCreateProcessWithExitCode git_status ""
           ssh_client <- lookupEnv "SSH_CLIENT"
 
           putStr $ Segments.render [Segments.username, Segments.ssh ssh_client,
                                     Segments.hostname, Segments.cwd cwd home,
-                                    Segments.git git_result, Segments.status status]
+                                    Segments.conda conda, Segments.git git_result, Segments.status status]

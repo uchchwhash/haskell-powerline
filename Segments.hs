@@ -59,6 +59,9 @@ status code = if code == 0
 ssh Nothing = empty
 ssh (Just _) = segment Symbols.lock Colors.ssh
 
+conda Nothing = empty
+conda (Just name) = segment ("🐍 " ++ name) Colors.conda_env
+
 cwd current_folder home = foldl (<>) empty (segments home)
     where segments Nothing = rest_segs (words current_folder)
           segments (Just home_folder) = home_seg : (rest_segs (words rest))
