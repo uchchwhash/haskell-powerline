@@ -60,6 +60,7 @@ ssh Nothing = empty
 ssh (Just _) = segment Symbols.lock Colors.ssh
 
 conda Nothing = empty
+conda (Just "base") = empty
 conda (Just name) = segment ("🐍 " ++ name) Colors.conda_env
 
 cwd current_folder home = foldl (<>) empty (segments home)
